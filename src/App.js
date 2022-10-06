@@ -7,7 +7,13 @@ function App() {
   const [isResumePause, setIsResumePause] = useState(false)
   const [isStartDisable, setIsStartDisable] = useState(false)
   const [recordList, setRecordList] = useState([])
+
   const timeRef = useRef('')
+  let timeStart = useRef(null)
+  let timeStop = useRef(null)
+  let timePause = useRef(null)
+  let timePauseDuration = useRef(0)
+  let diff = useRef(null)
 
   useEffect(() => {
     return () => {
@@ -16,34 +22,50 @@ function App() {
   }, [])
 
   const handleStart = () => {
+    if (timeStart.current === null) {
+      timeStart.current = new Date().getTime()
+    } else {
+      timePauseDuration.current += (new Date().getTime() - timePause.current)
+    }
+
     setIsStartDisable(true)
     setIsClockRun(true)
     setIsResumePause(true)
+
     timeRef.current = setInterval(() => {
-      console.log('interval running...')
       setTime(prevTime => prevTime + 1)
     }, 1000)
   }
 
   const handleReset = () => {
+    resetRef()
+
     setTime(0)
     setIsResumePause(false)
     setIsStartDisable(false)
     setIsClockRun(false)
+
     clearInterval(timeRef.current)
   }
 
   const handlePause = () => {
+    timePause.current = new Date().getTime()
     setIsClockRun(false)
     setIsResumePause(true)
+
     clearInterval(timeRef.current)
   }
 
-  const handleStop = () => {
-    setRecordList(prevState => [...prevState, { watchTime: formatDate(), time: time + 's' }])
+  const handleRecord = () => {
+    timeStop.current = new Date().getTime()
+    diff.current = timeStop.current - timeStart.current - timePauseDuration.current
+
+    resetRef()
+    setRecordList(prevState => [...prevState, { watchTime: formatDate(), time: diff.current / 1000 + 's' }])
     setIsStartDisable(true)
     setIsClockRun(false)
     setIsResumePause(false)
+
     clearInterval(timeRef.current)
   }
 
@@ -62,6 +84,13 @@ function App() {
       second = '0' + second
     }
     return hour + ':' + minute + ':' + second
+  }
+
+  const resetRef = () => {
+    timePause.current = null
+    timeStart.current = null
+    timeStop.current = null
+    timePauseDuration.current = 0
   }
 
   return (
@@ -87,8 +116,8 @@ function App() {
       <button
         disabled={!isClockRun}
         style={{ pointerEvents: isClockRun ? 'auto' : 'none' }}
-        onClick={handleStop}
-      >Stop</button>
+        onClick={handleRecord}
+      >Record</button>
 
       <ul>
         <h2>Your time record:</h2>
