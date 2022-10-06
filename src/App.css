@@ -4,4 +4,9 @@
 
 button {
   cursor: pointer;
+  margin-right: 10px;
+}
+
+li {
+  list-style-type: none;
 }
