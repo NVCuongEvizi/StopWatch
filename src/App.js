@@ -49,16 +49,19 @@ function App() {
 
   const formatDate = () => {
     const today = new Date()
-    const year = today.getFullYear()
-    let month = today.getMonth()
-    let day = today.getDate()
-    if (month < 10) {
-      month = '0' + month
+    let hour = today.getHours()
+    let minute = today.getMinutes()
+    let second = today.getSeconds()
+    if (hour < 10) {
+      hour = '0' + hour
     }
-    if (day < 10) {
-      day = '0' + day
+    if (minute < 10) {
+      minute = '0' + minute
     }
-    return day + '/' + month + '/' + year
+    if (second < 10) {
+      second = '0' + second
+    }
+    return hour + ':' + minute + ':' + second
   }
 
   return (
