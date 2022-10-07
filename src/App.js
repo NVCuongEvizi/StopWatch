@@ -4,7 +4,7 @@ import './App.css';
 function App() {
   const [time, setTime] = useState(0)
   const [isClockRun, setIsClockRun] = useState(false)
-  const [isResumePause, setIsResumePause] = useState(false)
+  const [isPause, setIsPause] = useState(false)
   const [isStartDisable, setIsStartDisable] = useState(false)
   const [recordList, setRecordList] = useState([])
 
@@ -30,7 +30,7 @@ function App() {
 
     setIsStartDisable(true)
     setIsClockRun(true)
-    setIsResumePause(true)
+    setIsPause(false)
 
     timeRef.current = setInterval(() => {
       setTime(prevTime => prevTime + 1)
@@ -38,10 +38,13 @@ function App() {
   }
 
   const handleReset = () => {
-    resetRef()
+    timePause.current = null
+    timeStart.current = null
+    timeStop.current = null
+    timePauseDuration.current = 0
 
     setTime(0)
-    setIsResumePause(false)
+    setIsPause(false)
     setIsStartDisable(false)
     setIsClockRun(false)
 
@@ -51,22 +54,20 @@ function App() {
   const handlePause = () => {
     timePause.current = new Date().getTime()
     setIsClockRun(false)
-    setIsResumePause(true)
+    setIsPause(true)
 
     clearInterval(timeRef.current)
   }
 
   const handleRecord = () => {
     timeStop.current = new Date().getTime()
-    diff.current = timeStop.current - timeStart.current - timePauseDuration.current
+    if (isPause) {
+      diff.current = timePause.current - timeStart.current
+    } else {
+      diff.current = timeStop.current - timeStart.current - timePauseDuration.current
+    }
 
-    resetRef()
     setRecordList(prevState => [...prevState, { watchTime: formatDate(), time: diff.current / 1000 + 's' }])
-    setIsStartDisable(true)
-    setIsClockRun(false)
-    setIsResumePause(false)
-
-    clearInterval(timeRef.current)
   }
 
   const formatDate = () => {
@@ -86,13 +87,6 @@ function App() {
     return hour + ':' + minute + ':' + second
   }
 
-  const resetRef = () => {
-    timePause.current = null
-    timeStart.current = null
-    timeStop.current = null
-    timePauseDuration.current = 0
-  }
-
   return (
     <div className="App">
       <h2>Time: {time}</h2>
@@ -108,14 +102,10 @@ function App() {
       >Reset</button>
 
       <button
-        disabled={!isResumePause}
-        style={{ pointerEvents: isResumePause ? 'auto' : 'none' }}
         onClick={isClockRun ? handlePause : handleStart}
       >{isClockRun ? 'Pause' : 'Resume'}</button>
 
       <button
-        disabled={!isClockRun}
-        style={{ pointerEvents: isClockRun ? 'auto' : 'none' }}
         onClick={handleRecord}
       >Record</button>
 
