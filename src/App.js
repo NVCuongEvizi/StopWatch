@@ -50,7 +50,8 @@ function App() {
 
     clearInterval(timeRef.current)
   }
-
+  // pause lần thứ 2 mà recordthì sẽ lỗi nhảy time lên nhiều hơn
+  // reset nhưng vẫn record
   const handlePause = () => {
     timePause.current = new Date().getTime()
     setIsClockRun(false)
@@ -60,14 +61,16 @@ function App() {
   }
 
   const handleRecord = () => {
-    timeStop.current = new Date().getTime()
-    if (isPause) {
-      diff.current = timePause.current - timeStart.current
-    } else {
-      diff.current = timeStop.current - timeStart.current - timePauseDuration.current
-    }
+    if (timeRef.current) {
+      timeStop.current = new Date().getTime()
+      if (isPause) {
+        diff.current = timePause.current - timeStart.current - timePauseDuration.current
+      } else {
+        diff.current = timeStop.current - timeStart.current - timePauseDuration.current
+      }
 
-    setRecordList(prevState => [...prevState, { watchTime: formatDate(), time: diff.current / 1000 + 's' }])
+      setRecordList(prevState => [...prevState, { watchTime: formatDate(), time: diff.current / 1000 + 's' }])
+    }
   }
 
   const formatDate = () => {
