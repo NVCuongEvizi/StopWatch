@@ -4,73 +4,61 @@ import './App.css';
 function App() {
   const [time, setTime] = useState(0)
   const [isClockRun, setIsClockRun] = useState(false)
-  const [isPause, setIsPause] = useState(false)
-  const [isStartDisable, setIsStartDisable] = useState(false)
   const [recordList, setRecordList] = useState([])
-
-  const timeRef = useRef('')
-  let timeStart = useRef(null)
-  let timeStop = useRef(null)
-  let timePause = useRef(null)
-  let timePauseDuration = useRef(0)
-  let diff = useRef(null)
+  const intervalID = useRef(null)
+  const timeStart = useRef(null)
+  const timeRecord = useRef(0)
 
   useEffect(() => {
     return () => {
-      clearInterval(timeRef.current)
+      clearInterval(intervalID.current)
     }
   }, [])
 
-  const handleStart = () => {
-    if (timeStart.current === null) {
-      timeStart.current = new Date().getTime()
+  const handleWatchRun = () => {
+    if (!intervalID.current) {
+      // start // resume
+      intervalID.current = setInterval(() => {
+        setTime(prevTime => prevTime + 1)
+      }, 1000)
+      console.log('start // resume')
     } else {
-      timePauseDuration.current += (new Date().getTime() - timePause.current)
+      // pause
+      handleStop()
+      console.log('pause')
     }
 
-    setIsStartDisable(true)
-    setIsClockRun(true)
-    setIsPause(false)
+    if (isClockRun) {
+      // pause
+      timeRecord.current += new Date().getTime() - timeStart.current
+      console.log('pause')
+    } else {
+      // resume
+      timeStart.current = new Date().getTime()
+      console.log('resume')
+    }
 
-    timeRef.current = setInterval(() => {
-      setTime(prevTime => prevTime + 1)
-    }, 1000)
+    setIsClockRun(!isClockRun)
   }
 
   const handleReset = () => {
-    timePause.current = null
     timeStart.current = null
-    timeStop.current = null
-    timePauseDuration.current = 0
+    timeRecord.current = 0
 
     setTime(0)
-    setIsPause(false)
-    setIsStartDisable(false)
     setIsClockRun(false)
-
-    clearInterval(timeRef.current)
+    setRecordList([])
+    handleStop()
   }
-  // pause lần thứ 2 mà recordthì sẽ lỗi nhảy time lên nhiều hơn
-  // reset nhưng vẫn record
-  const handlePause = () => {
-    timePause.current = new Date().getTime()
-    setIsClockRun(false)
-    setIsPause(true)
 
-    clearInterval(timeRef.current)
+  const handleStop = () => {
+    clearInterval(intervalID.current)
+    intervalID.current = null
   }
 
   const handleRecord = () => {
-    if (timeRef.current) {
-      timeStop.current = new Date().getTime()
-      if (isPause) {
-        diff.current = timePause.current - timeStart.current - timePauseDuration.current
-      } else {
-        diff.current = timeStop.current - timeStart.current - timePauseDuration.current
-      }
-
-      setRecordList(prevState => [...prevState, { watchTime: formatDate(), time: diff.current / 1000 + 's' }])
-    }
+    const result = new Date().getTime() - timeStart.current + timeRecord.current
+    setRecordList(prevState => [...prevState, { watchTime: formatDate(), time: result / 1000 + 's' }])
   }
 
   const formatDate = () => {
@@ -92,27 +80,34 @@ function App() {
 
   return (
     <div className="App">
-      <h2>Time: {time}</h2>
+      <div className="time-button">
+        <h2>Time: {time}</h2>
 
-      <button
-        disabled={isStartDisable}
-        style={{ pointerEvents: isStartDisable ? 'none' : 'auto' }}
-        onClick={handleStart}
-      >Start</button>
+        {
+          timeRecord.current === 0 && !intervalID.current &&
+          <button
+            onClick={handleWatchRun}
+          >Start</button>
+        }
 
-      <button
-        onClick={handleReset}
-      >Reset</button>
+        <button
+          onClick={handleReset}
+        >Reset</button>
 
-      <button
-        onClick={isClockRun ? handlePause : handleStart}
-      >{isClockRun ? 'Pause' : 'Resume'}</button>
+        <button
+          onClick={handleWatchRun}
+        >{isClockRun ? 'Pause' : 'Resume'}</button>
 
-      <button
-        onClick={handleRecord}
-      >Record</button>
+        {
+          isClockRun &&
+          <button
+            onClick={handleRecord}
+          >Record</button>
+        }
 
-      <ul>
+      </div>
+
+      <ul className="time-display">
         <h2>Your time record:</h2>
         {recordList?.map((item, index) =>
           <li key={index}>#{index + 1} - watchTime: {item.watchTime} - Time: {item.time}</li>

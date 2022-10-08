@@ -1,3 +1,9 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
 .App {
   text-align: center;
 }
@@ -9,4 +15,33 @@ button {
 
 li {
   list-style-type: none;
+  padding: 4px;
+}
+
+.time-button {
+  width: 400px;
+  margin: 40px auto 0;
+  padding: 10px;
+  background-color: aqua;
+
+}
+
+.time-button h2 {
+  margin-bottom: 10px;
+}
+
+.time-button button {
+  padding: 8px;
+  border-radius: 3px;
+  outline: none;
+  border: none;
+  font-size: 14px;
+}
+
+.time-button button:hover {
+  background-color: violet;
+}
+
+.time-display {
+  margin-top: 10px;
 }
