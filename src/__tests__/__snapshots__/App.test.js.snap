@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should match the snapshot 1`] = `
+<div
+  className="App"
+>
+  <div
+    className="time-button"
+  >
+    <h2>
+      0
+    </h2>
+    <button
+      className="startBtn"
+      onClick={[Function]}
+    >
+      Start
+    </button>
+    <button
+      className="resetBtn"
+      onClick={[Function]}
+    >
+      Reset
+    </button>
+    <button
+      className="pauseResumeBtn"
+      onClick={[Function]}
+    >
+      Resume
+    </button>
+    <button
+      className="recordBtn"
+      disabled={true}
+      onClick={[Function]}
+    >
+      Record
+    </button>
+  </div>
+  <ul
+    className="time-display"
+  >
+    <h2>
+      Your time record:
+    </h2>
+  </ul>
+</div>
+`;
